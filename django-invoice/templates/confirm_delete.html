@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+  <style>
+    body {
+      background-color: #f0f0f0; 
+      color: #000; 
+    }
+  </style>
+</head>
+
+<br><br><br><br>
+
+<h1 class="text-center">Êtes-vous sûr de vouloir supprimer ce produit ?</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+    <a href="{% url 'add-article' %}" class="btn btn-secondary">Annuler</a>
+</form>
+
+{% endblock content %}

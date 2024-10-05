@@ -1,0 +1,28 @@
+<!-- edit_facture.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier Facture</title>
+</head>
+<body>
+    <h1>Modifier Facture</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ facture_form.as_p }}
+        {{ ligne_facture_formset.management_form }}
+        <table id="ligne-facture-table">
+            {% for ligne_facture_form in ligne_facture_formset %}
+            <tr class="ligne-facture-form">
+                <td>{{ ligne_facture_form.produit }}</td>
+                <td>{{ ligne_facture_form.quantite }}</td>
+                <td>{{ ligne_facture_form.remise }}</td>
+                <td>{{ ligne_facture_form.prix_vente }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <button type="submit">Enregistrer Facture</button>
+    </form>
+</body>
+</html>

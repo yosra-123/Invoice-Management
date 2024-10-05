@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+    </style>
+</head>
+
+<br><br><br><br>
+
+<h1 class="text-capitalize text-center mx-10 bg-dark text-white">Enregistrer un nouveau produit</h1>
+
+<form id="articleForm" method="post">
+    {% csrf_token %}
+    <div id="wrapper" data-article-id="">
+        <!-- Form fields will be added dynamically here -->
+    </div>
+    
+    <!-- Hidden fields to track original values -->
+    <input type="hidden" id="original-code" name="original-code">
+    <input type="hidden" id="original-name" name="original-name">
+    <input type="hidden" id="original-qty" name="original-qty">
+    <input type="hidden" id="original-unit" name="original-unit">
+    <input type="hidden" id="original-prix" name="original-prix">
+
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <button id="btn-ajouter" class="btn btn-secondary" type="button">Ajouter</button>
+</form>
+
+
+<br><br>
+
+<div class="row">
+    <button id="btn-add" class="btn btn-outline-danger w-50 col-md-6">Ajouter une nouvelle ligne de produit</button>
+    <button id="btn-remove" class="btn btn-outline-warning w-50 col-md-6">Supprimer la dernière ligne de produit</button>
+</div>
+
+<br><br><br><br>
+
+<h2>Liste des articles</h2>
+
+<!-- Search bar for articles -->
+<div class="input-group mb-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un article">
+    <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="button" id="searchButton">Rechercher</button>
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Code produit</th>
+            <th>Nom produit /<br> اسم المنتج </th>
+            <th>Quantité / <br> كمية</th>
+            <th>Prix unitaire / <br>  سعر الوحدة </th>
+            <th>Prix / <br> السعر</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="article-list">
+        {% for article in articles %}
+        <tr id="article-row-{{ article.id }}" data-article-id="{{ article.id }}">
+            <td>{{ article.code }}</td>
+            <td>{{ article.name }}</td>
+            <td>{{ article.quantity }}</td>
+            <td>{{ article.unit_price }}</td>
+            <td>{{ article.prix }}</td>
+            <td>
+                <button class="modify-btn btn btn-primary" onclick="loadArticleData({{ article.id }})">Modify</button>
+                <button class="delete-btn" onclick="deleteArticle({{ article.id }})">Supprimer</button>
+                
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+<!-- Pagination Controls -->
+<nav>
+    <ul class="pagination justify-content-center" id="pagination-controls"></ul>
+</nav>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Initialize form and add first row
+        addArticleRow();
+
+        // Search functionality
+        $('#searchButton').click(function() {
+            var searchText = $('#searchInput').val().toLowerCase();
+            $('#article-list tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+            });
+        });
+
+        // Add new product line("Enregistrer" button)
+        $('#btn-add').click(function(e) {
+            e.preventDefault();
+            addArticleRow();
+        });
+
+        // Remove last product line
+        $('#btn-remove').click(function(e) {
+            e.preventDefault();
+            removeArticleRow();
+        });
+    });
+
+    function addArticleRow() {
+        var number = $('#wrapper').children().length + 1;
+
+        let formAdd = `
+            <div class="form-row">
+                <div class="form-group col-md-1">
+                    <label for="code-${number}">Code</label>
+                    <input required name="code" type="text" class="form-control" id="code-${number}">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="article-${number}">#${number} Nom de produit</label>
+                    <input required name="article" type="text" class="form-control" id="article-${number}">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="qty-${number}">Quantité</label>
+                    <input required name="qty" type="number" min="1" step="0.001" class="form-control" id="qty-${number}">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="unit-${number}">Prix unitaire</label>
+                    <input required name="unit" type="number" min="1" step="0.001" onchange="handleChangeSingleArticle(this.id)" class="form-control" id="unit-${number}">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="total-a-${number}">Prix Total</label>
+                    <input required name="total-a" type="number" min="1" step="0.001" readonly class="form-control" id="total-a-${number}">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="prix-${number}">Prix de vente</label>
+                    <input required name="prix" type="text" value="0.000" class="form-control" id="prix-${number}">
+                </div>
+            </div>
+        `;
+        $("#wrapper").append(formAdd);
+    }
+
+    function removeArticleRow() {
+        if ($('#wrapper').children().length > 1) {
+            $("#wrapper").children().last().remove();
+        }
+    }
+
+    function handleChangeSingleArticle(id) {
+        let articleId = id.split('-')[1];
+        let qty = parseFloat($(`#qty-${articleId}`).val());
+        let unit = parseFloat($(`#unit-${articleId}`).val());
+        let total = qty * unit;
+        $(`#total-a-${articleId}`).val(total.toFixed(2));
+    }
+
+    function loadArticleData(articleId) {
+        let articleRow = document.querySelector(`#article-row-${articleId}`);
+        let code = articleRow.querySelector('td:nth-child(1)').textContent.trim();
+        let name = articleRow.querySelector('td:nth-child(2)').textContent.trim();
+        let quantity = articleRow.querySelector('td:nth-child(3)').textContent.trim();
+        let unitPrice = articleRow.querySelector('td:nth-child(4)').textContent.trim();
+        let prix = articleRow.querySelector('td:nth-child(5)').textContent.trim();
+    
+        // Populate form fields
+        document.querySelector(`#code-1`).value = code;
+        document.querySelector(`#article-1`).value = name;
+        document.querySelector(`#qty-1`).value = quantity;
+        document.querySelector(`#unit-1`).value = unitPrice;
+        document.querySelector(`#prix-1`).value = prix;
+    
+        // Set original values in hidden fields
+        document.querySelector('#original-code').value = code;
+        document.querySelector('#original-name').value = name;
+        document.querySelector('#original-qty').value = quantity;
+        document.querySelector('#original-unit').value = unitPrice;
+        document.querySelector('#original-prix').value = prix;
+    
+        // Set data attribute for article ID
+        document.querySelector('#wrapper').setAttribute('data-article-id', articleId);
+    }
+    $(document).ready(function() {
+        $('#articleForm').submit(function(e) {
+            e.preventDefault();
+    
+            // Get the form data
+            let articleId = $('#wrapper').data('article-id');
+            let currentCode = $('#code-1').val();
+            let currentName = $('#article-1').val();
+            let currentQty = $('#qty-1').val();
+            let currentUnit = $('#unit-1').val();
+            let currentPrix = $('#prix-1').val();
+    
+            // Check if any required fields are missing or invalid
+            if (!currentCode || !currentName || !currentQty || !currentUnit || !currentPrix) {
+                alert('Please fill all the required fields.');
+                return;
+            }
+    
+            // Get original values from hidden fields (if editing an existing article)
+            let originalCode = $('#original-code').val();
+            let originalName = $('#original-name').val();
+            let originalQty = $('#original-qty').val();
+            let originalUnit = $('#original-unit').val();
+            let originalPrix = $('#original-prix').val();
+    
+            // Compare original and current values to check for changes
+            if (!articleId) {
+                // If it's a new product (no article ID), submit the form to create the product
+                $('#articleForm')[0].submit();
+            } else if (originalCode !== currentCode || originalName !== currentName || originalQty !== currentQty || originalUnit !== currentUnit || originalPrix !== currentPrix) {
+                // If changes are detected, delete the old article
+                deleteArticle(articleId).then(function() {
+                    // After deleting the old article, submit the form to add the new one
+                    $('#articleForm')[0].submit();
+                }).catch(function(error) {
+                    alert('Error deleting the old article: ' + error.message);
+                });
+            } else {
+                // If no changes are detected, just submit the form
+                $('#articleForm')[0].submit();
+            }
+    
+        });
+    
+        // Function to delete the article via an API call
+        function deleteArticle(articleId) {
+            return fetch(`/delete-article/${articleId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'Failed to delete the article');
+                    });
+                }
+            });
+        }
+    });
+    
+
+    $(document).ready(function () {
+        const rowsPerPage = 5;  // Adjust this number to your desired rows per page
+        let currentPage = 1;
+    
+        const tableRows = $('#article-list tr');
+        const totalPages = Math.ceil(tableRows.length / rowsPerPage);
+    
+        function showPage(page) {
+            tableRows.hide();  // Hide all rows
+            tableRows.slice((page - 1) * rowsPerPage, page * rowsPerPage).show();  // Show the rows for the current page
+        }
+    
+        function createPaginationControls() {
+            $('#pagination-controls').empty();  // Clear any existing pagination controls
+    
+            for (let i = 1; i <= totalPages; i++) {
+                $('#pagination-controls').append(`
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#">${i}</a>
+                    </li>
+                `);
+            }
+    
+            // Add click event for each pagination link
+            $('#pagination-controls li a').click(function (e) {
+                e.preventDefault();
+                currentPage = parseInt($(this).text());  // Get the page number from the clicked link
+                showPage(currentPage);
+    
+                // Update active class on the pagination controls
+                $('#pagination-controls li').removeClass('active');
+                $(this).parent().addClass('active');
+            });
+        }
+    
+        // Initialize the pagination
+        showPage(currentPage);
+        createPaginationControls();
+    });
+
+    // Function to delete the article via an API call
+    function deleteArticle(articleId) {
+        fetch(`/delete-article/${articleId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+        }).then(response => {
+            if (response.ok) {
+                alert('Article supprimé avec succès.');
+                location.reload();
+            } else {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Failed to delete the article');
+                });
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+            alert(`Erreur lors de la suppression de l'article: ${error.message}`);
+        });
+    }     
+    
+</script>
+
+{% endblock %}

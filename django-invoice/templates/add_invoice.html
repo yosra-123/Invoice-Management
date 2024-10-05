@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+  <style>
+    body {
+      background-color: #f0f0f0; 
+      color: #000; 
+    }
+  </style>
+</head>
+
+<h1 class="text-capitalize text-center mx-10 bg-dark text-white">Enregistrer une nouvelle facture</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="form-row">
+        <div class="form-group col-md-12">
+            <label for="customer">Client</label>
+            <input type="text" id="customer-search" class="form-control" placeholder="Search for a customer...">
+            <select name="customer" class="form-control" id="customer">
+                <option>Choisissez le client ...</option>
+                {% for customer in customers %}
+                <option value="{{ customer.id }}">{{ forloop.counter }}-{{ customer.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-12">
+            <label for="invoice">Type de facture</label>
+            <select name="invoice_type" class="form-control" id="invoice">
+                <option value="FACTURE">FACTURE</option>   
+            </select>
+        </div>
+    </div>
+
+    <div id="wrapper">
+        <!-- Article fields will be dynamically added here -->
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-12">
+            <label for="total">Total</label>
+            <input value="0" type="number" step="0.1" name="total" readonly class="form-control" id="total">
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+</form>
+
+<br><br>
+
+<div class="row">
+    <button id="btn-add" class="btn btn-outline-danger w-50 col-md-6">Ajouter une nouvelle ligne de produit</button>
+    <button id="btn-remove" class="btn btn-outline-warning w-50 col-md-6">Supprimer la dernière ligne de produit</button>
+</div>
+
+<br><br><br><br>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Total HT</th>
+            <th>Total TVA</th>
+            <th>Total TTC</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td id="total_ht">0</td>
+            <td id="total_tva">0</td>
+            <td id="total_ttc">0</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Embed article data as a JavaScript variable -->
+<script>
+    const articles = {{ articles|safe }};
+</script>
+
+<script type="text/javascript">
+let articleCount = 0;
+
+function addArticleRow() {
+    articleCount++;
+    const articleRow = `
+        <div class="form-row article-row" id="article-row-${articleCount}">
+            <div class="form-group col-md-12">
+                <label for="article-${articleCount}">Nom produit</label>
+                <input type="text" id="article-search-${articleCount}" class="form-control" placeholder="Search for a product...">
+                <select name="article" class="form-control article-input" id="article-${articleCount}">
+                    <option>Choisissez le produit ...</option>
+                    ${articles.map(article => `<option value="${article.id}">${article.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="qty-${articleCount}">Quantité</label>
+                <input type="number" name="qty" class="form-control qty-input" id="qty-${articleCount}">
+            </div>
+            <div class="form-group col-md-2">
+                <label for="unit-${articleCount}">Prix Unitaire</label>
+                <input type="number" step="0.001" name="unit" class="form-control unit-input" id="unit-${articleCount}">
+            </div>
+            <div class="form-group col-md-1">
+                <label for="tva-${articleCount}">TVA (%)</label>
+                <input type="number" step="0.001" name="tva" class="form-control" id="tva-${articleCount}">
+            </div>
+            <div class="form-group col-md-2">
+                <label for="total-a-${articleCount}">Prix total</label>
+                <input type="number" step="0.001" name="total-a" readonly class="form-control total-a" id="total-a-${articleCount}">
+            </div>
+            <div class="form-group col-md-2">
+                <label for="prix-${articleCount}">Prix de vente</label>
+                <input type="number" step="0.001" name="prix" class="form-control prix-input" id="prix-${articleCount}">
+            </div>
+            <div class="form-group col-md-2">
+                <button type="button" class="btn btn-danger btn-sm btn-remove-row" id="btn-remove-row-${articleCount}">Supprimer</button>
+            </div>
+            <input type="hidden" name="montant_ht" id="montant-ht-${articleCount}">
+            <input type="hidden" name="montant_ttc" id="montant-ttc-${articleCount}">
+        </div>
+    `;
+    $('#wrapper').append(articleRow);
+    attachChangeEvent(articleCount);
+    updateRemoveButtonVisibility();
+}
+
+
+function removeArticleRow() {
+    if (articleCount > 1) { // Only allow row deletion if there's more than one row
+        $(`#article-row-${articleCount}`).remove();
+        articleCount--;
+
+        reIndexRows(); // Re-index the rows after deletion
+        updateRemoveButtonVisibility();
+        computeTotal();
+    }
+}
+
+function reIndexRows() {
+    $('#wrapper .article-row').each(function(index) {
+        let rowNumber = index + 1;
+        $(this).attr('id', `article-row-${rowNumber}`);
+
+        $(this).find('label, input, select').each(function() {
+            let currentId = $(this).attr('id');
+            if (currentId) {
+                let newId = currentId.replace(/\d+$/, rowNumber); // Update the number at the end of the ID
+                $(this).attr('id', newId);
+            }
+
+            let currentName = $(this).attr('name');
+            if (currentName) {
+                let newName = currentName.replace(/\d+$/, rowNumber); // Update the number at the end of the name
+                $(this).attr('name', newName);
+            }
+        });
+
+        // Reattach event listeners after reindexing
+        attachChangeEvent(rowNumber);
+    });
+
+    // Update articleCount to reflect the number of rows
+    articleCount = $('#wrapper .article-row').length;
+}
+
+
+function updateRemoveButtonVisibility() {
+    if (articleCount > 1) {
+        $('.btn-remove-row').show();  // Show all "Supprimer" buttons
+    } else {
+        $('.btn-remove-row').hide();  // Hide if only one row
+    }
+}
+
+function computeTotal() {
+    let total = 0;
+    let totalHT = 0;
+    let totalTVA = 0;
+    let totalTTC = 0;
+
+    $('[name="total-a"]').each(function() {
+        total += parseFloat($(this).val()) || 0;
+    });
+    $('[name="montant_ht"]').each(function() {
+        totalHT += parseFloat($(this).val()) || 0;
+    });
+    $('[name="montant_ttc"]').each(function() {
+        totalTTC += parseFloat($(this).val()) || 0;
+    });
+
+    totalTVA = totalTTC - totalHT;
+
+    $('#total').val(total.toFixed(3));
+    $('#total_ht').text(totalHT.toFixed(3));
+    $('#total_tva').text(totalTVA.toFixed(3));
+    $('#total_ttc').text(totalTTC.toFixed(3));
+}
+
+function handleChangeSingleArticle(id) {
+    let articleId = id.split('-')[1];
+
+    let qtyId = `#qty-${articleId}`;
+    let unitId = `#unit-${articleId}`;
+    let tvaId = `#tva-${articleId}`;
+    let totalId = `#total-a-${articleId}`;
+    let prixId = `#prix-${articleId}`;
+    let montantHtId = `#montant-ht-${articleId}`;
+    let montantTtcId = `#montant-ttc-${articleId}`;
+
+    let quantity = parseFloat($(qtyId).val()) || 0;
+    let unitPrice = parseFloat($(unitId).val()) || 0;
+    let tva = parseFloat($(tvaId).val()) || 0;
+    let prix = parseFloat($(prixId).val()) || 0;
+
+    let montantHT = quantity * unitPrice;
+    let montantTTC = montantHT * (1 + tva / 100);
+    let totalLine = montantTTC;
+
+    $(montantHtId).val(montantHT.toFixed(3));
+    $(montantTtcId).val(montantTTC.toFixed(3));
+    $(totalId).val(totalLine.toFixed(3));
+
+    computeTotal();
+}
+
+function attachChangeEvent(number) {
+    // Event listener for quantity, unit price, TVA, and sales price changes
+    $(`#qty-${number}, #unit-${number}, #tva-${number}, #prix-${number}`).on('change', function() {
+        handleChangeSingleArticle(this.id);
+    });
+
+    // Event listener for article selection
+    $(`#article-${number}`).on('change', function() {
+        let articleId = $(this).val();
+        let matchedArticle = articles.find(article => article.id == articleId);
+
+        if (matchedArticle) {
+            $(`#unit-${number}`).val(matchedArticle.unit_price);
+            $(`#prix-${number}`).val(matchedArticle.prix); // Auto-fill the sales price
+            $(`#qty-${number}`).val(1); // Default quantity to 1
+            handleChangeSingleArticle(`qty-${number}`);
+        }
+    });
+
+    // Event listener for article search
+    $(`#article-search-${number}`).on('keyup', function() {
+        var searchText = $(this).val().toLowerCase();
+        $(`#article-${number} option`).each(function() {
+            var optionText = $(this).text().toLowerCase();
+            if (optionText.indexOf(searchText) !== -1) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
+    // Handle individual row removal
+    $(`#btn-remove-row-${number}`).on('click', function() {
+        $(`#article-row-${number}`).remove(); // Only remove the current row
+        computeTotal(); // Recalculate totals after row deletion
+        updateRemoveButtonVisibility(); // Optionally, update button visibility if needed
+    });
+}
+
+
+
+$(document).ready(function() {
+    $('#customer-search').on('keyup', function() {
+        var searchText = $(this).val().toLowerCase();
+        $('#customer option').each(function() {
+            var optionText = $(this).text().toLowerCase();
+            if (optionText.indexOf(searchText) !== -1) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
+    $('#btn-add').click(function(e) {
+        e.preventDefault();
+        addArticleRow();
+    });
+
+    $('#btn-remove').click(function(e) {
+        e.preventDefault();
+        removeArticleRow();
+    });
+
+    // Initialize the first article row
+    addArticleRow();
+
+    // Ensure correct button visibility at the start
+    updateRemoveButtonVisibility();
+
+    // Event delegation to handle dynamic elements
+    $('#wrapper').on('input', '.article-input, .unit-input, .qty-input, .prix-input', function() {
+        handleChangeSingleArticle(this.id);
+    });
+});
+
+</script>
+{% endblock %}

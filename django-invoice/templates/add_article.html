@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+  <style>
+    body {
+      background-color: #f0f0f0; 
+      color: #000; 
+    }
+    .delete-btn {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+  </style>
+</head>
+
+<h1 class="text-capitalize text-center mx-10 bg-dark text-white">Enregistrer Un Nouvel Article</h1>
+
+<form method="post" id="article-form" action="{% url 'add-article' %}">
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="code">Code</label>
+            <input type="text" name="code" class="form-control" id="code">
+        </div>
+        <div class="form-group col-md-3">
+            <label for="name">Nom de produit</label>
+            <input type="text" name="name" class="form-control" id="name">
+        </div>
+        <div class="form-group col-md-2">
+            <label for="quantity">Quantité</label>
+            <input type="number" name="quantity" class="form-control" id="quantity">
+        </div>
+        <div class="form-group col-md-2">
+            <label for="unit-price">Prix Unitaire</label>
+            <input type="number" step="0.01" name="unit_price" class="form-control" id="unit-price">
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+</form>
+<br><br>
+<h2>Liste des articles</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Code produit</th>
+            <th>Nom produit</th>
+            <th>Quantité</th>
+            <th>Prix unitaire</th>
+            <th>Prix Total</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="article-list">
+        {% for article in articles %}
+        <tr>
+            <td>{{ article.code }}</td>
+            <td>{{ article.name }}</td>
+            <td>{{ article.quantity }}</td>
+            <td>{{ article.unit_price }}</td>
+            <td>{{ article.total }}</td>
+            <td>
+                <button class="delete-btn" onclick="deleteArticle({{ article.id }})">Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const articleForm = document.getElementById('article-form');
+    
+        articleForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+    
+            const formData = new FormData(articleForm);
+    
+            fetch('/add-article/', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    throw new Error('Failed to save the article');
+                }
+            }).catch(error => console.error('Error:', error));
+        });
+    });
+    
+    function deleteArticle(articleId) {
+        fetch(`/delete-article/${articleId}/`, {
+            method: 'POST'
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                throw new Error('Failed to delete the article');
+            }
+        }).catch(error => console.error('Error:', error));
+    }
+</script>
+{% endblock %}

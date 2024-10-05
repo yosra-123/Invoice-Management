@@ -1,0 +1,98 @@
+<!-- add_produit.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Add Product</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="code_article">Code Article:</label>
+                <input type="text" id="code_article" name="code_article">
+            </div>
+            <div class="form-group">
+                <label for="nom_produit">Nom Produit:</label>
+                <input type="text" id="nom_produit" name="nom_produit">
+            </div>
+            <div class="form-group">
+                <label for="quantite">Quantité:</label>
+                <input type="number" id="quantite" name="quantite">
+            </div>
+            <div class="form-group">
+                <label for="prix_unitaire">Prix Unitaire:</label>
+                <input type="number" id="prix_unitaire" name="prix_unitaire">
+            </div>
+            <div class="form-group">
+                <label for="tva">TVA:</label>
+                <input type="number" id="tva" name="tva">
+            </div>
+            <button type="submit" class="button">Add Product</button>
+        </form>
+    </div>
+</body>
+</html>

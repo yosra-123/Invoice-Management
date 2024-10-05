@@ -1,0 +1,25 @@
+<!-- manage_factures.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Add necessary meta tags, title, and CSS styles -->
+</head>
+<body>
+    <h1>Manage Factures</h1>
+
+    <!-- Form for adding factures -->
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Facture</button>
+    </form>
+
+    <!-- Display list of factures -->
+    <ul>
+        {% for facture in factures %}
+        <li><a href="{% url 'facture_detail' facture.pk %}">{{ facture.numero_facture }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

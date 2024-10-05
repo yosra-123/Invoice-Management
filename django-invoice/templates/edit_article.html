@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Edit Article</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="form-group">
+        <label for="code">Code</label>
+        <input type="number" name="code" class="form-control" id="code" value="{{ article.code }}">
+    </div>
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" name="name" class="form-control" id="name" value="{{ article.name }}">
+    </div>
+    <div class="form-group">
+        <label for="qty-1">Quantité</label>
+        <input type="number" name="qty" class="form-control" id="qty" value="{{ article.quantity }}">
+    </div>
+
+    <div class="form-group">
+        <label for="unit-1">Unit Price</label>
+        <input type="number" name="unit" step="0.01" class="form-control" id="unit" value="{{ article.unit_price}}">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save changes</button>
+</form>
+
+{% endblock content %}
+

@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+    </style>
+</head>
+
+<br><br><br><br>
+
+<h1 class="text-capitalize text-center mx-10 bg-dark text-white">Enregistrer une nouvelle produit</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <div id="wrapper">
+        <!-- Your form fields -->
+    </div>
+
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+</form>
+
+<br><br>
+
+<div class="row">
+    <button id="btn-add" class="btn btn-outline-danger w-50 col-md-6">Ajouter une nouvelle ligne de produit</button>
+    <button id="btn-remove" class="btn btn-outline-warning w-50 col-md-6">Supprimer la dernière ligne de produit</button>
+</div>
+
+<br><br><br><br>
+
+<h2>Liste des articles</h2>
+
+<!-- Search bar for articles -->
+<div class="input-group mb-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un article">
+    <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="button" id="searchButton">Rechercher</button>
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Code produit</th>
+            <th>Nom produit /<br> اسم المنتج </th>
+            <th>Quantité / <br> كمية</th>
+            <th>Prix unitaire / <br>  سعر الوحدة </th>
+            <th>Prix / <br> السعر</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="article-list">
+        {% for article in articles %}
+        <tr>
+            <td>{{ article.code }}</td>
+            <td>{{ article.name }}</td>
+            <td>{{ article.quantity }}</td>
+            <td>{{ article.unit_price }}</td>
+            <td>{{ article.prix }}</td>
+            <td>
+                <button class="delete-btn" onclick="deleteArticle({{ article.id }})">Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    // JavaScript logic for search functionality
+    $(document).ready(function() {
+        $('#searchButton').click(function() {
+            var searchText = $('#searchInput').val().toLowerCase();
+            $('#article-list tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
+            });
+        });
+    });
+    
+    // Function to add new line item
+    function addArticleRow() {
+        var number = $('#wrapper').children().length + 1;
+        let formAdd = `
+            <div class="form-row">
+                <div class="form-group col-md-1">
+                    <label for="code-${number}">Code</label>
+                    <input required name="code" type="text" class="form-control" id="code-${number}">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="article-${number}">#${number} Nom de produit</label>
+                    <input required name="article" type="text" class="form-control" id="article-${number}">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="qty-${number}">Quantité</label>
+                    <input required name="qty" type="number" min="1" step="0.001" class="form-control" id="qty-${number}">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="unit-${number}">Prix unitaire</label>
+                    <input required name="unit" type="number" min="1" step="0.001" onchange="handleChangeSingleArticle(this.id)" class="form-control" id="unit-${number}">
+                </div>
+ 
+                <div class="form-group col-md-2">
+                    <label for="total-a-${number}">Prix Total</label>
+                    <input required name="total-a" type="number" min="1" step="0.001" readonly class="form-control" id="total-a-${number}">
+                </div>
+               <div class="form-group col-md-2">
+                    <label for="prix-${number}">Prix de vente</label>
+                    <input required name="prix" type="number" min="1" step="0.001" class="form-control" id="prix-${number}">
+                </div>
+            </div>
+        `;
+        
+        // Check for duplicate code or name before adding
+        let newCode = $(`#code-${number}`).val();
+        let newName = $(`#article-${number}`).val();
+        let isDuplicate = false;
+    
+        $('[id^="code-"]').each(function() {
+            if ($(this).val() === newCode) {
+                isDuplicate = true;
+                alert('Code produit déjà existant.');
+                return false; // Exit the loop early
+            }
+        });
+    
+        if (!isDuplicate) {
+            $('[id^="article-"]').each(function() {
+                if ($(this).val() === newName) {
+                    isDuplicate = true;
+                    alert('Nom produit déjà existant.');
+                    return false; // Exit the loop early
+                }
+            });
+        }
+    
+        if (!isDuplicate) {
+            $("#wrapper:last").append(formAdd);
+        }
+    }
+    
+    // Function to remove last line item
+    function removeArticleRow() {
+        if ($('#wrapper').children().length > 1) {
+            $("#wrapper").children().last().remove();
+            computeTotal();
+        }
+    }
+
+    // Function to handle change in quantity or unit price
+    function handleChangeSingleArticle(id) {
+        let articleId = id.split('-')[1];
+        let idQty = `#qty-${articleId}`;
+        let unitId = `#unit-${articleId}`;
+        let totalIdLine = `#total-a-${articleId}`;
+        let totalLine = parseFloat($(idQty).val()) * parseFloat($(unitId).val());
+        $(totalIdLine).val(totalLine.toFixed(2));
+        computeTotal();
+    }
+
+    // Function to compute total
+    function computeTotal() {
+        let total = 0;
+        $('[name="total-a"]').each(function() {
+            total += parseFloat($(this).val()) || 0;
+        });
+        $('#total').val(total.toFixed(2));
+    }
+
+    $(document).ready(function() {
+        $('#btn-add').click(function(e) {
+            e.preventDefault();
+            addArticleRow();
+        });
+
+        $('#btn-remove').click(function(e) {
+            e.preventDefault();
+            removeArticleRow();
+        });
+
+        // Initialize the first article row
+        addArticleRow();
+    });
+
+    function deleteArticle(articleId) {
+        fetch(`/delete-article/${articleId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+        }).then(response => {
+            if (response.ok) {
+                alert('Article supprimé avec succès.');
+                location.reload();
+            } else {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Failed to delete the article');
+                });
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+            alert(`Erreur lors de la suppression de l'article: ${error.message}`);
+        });
+    }
+    
+</script>
+{% endblock %}

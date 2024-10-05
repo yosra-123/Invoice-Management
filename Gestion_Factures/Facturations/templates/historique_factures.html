@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique des Factures</title>
+</head>
+<body>
+    <h1>Historique des Factures</h1>
+    <ul>
+        {% for facture in factures %}
+        <li>{{ facture.client.nom_client }} - Facture ID: {{ facture.id }}
+            <a href="{% url 'voir_facture' facture.id %}">Voir</a>
+            <a href="{% url 'supprimer_facture' facture.id %}">Supprimer</a>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

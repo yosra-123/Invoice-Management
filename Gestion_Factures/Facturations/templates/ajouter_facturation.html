@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturation Page</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Custom CSS for centering the table */
+        .center-table {
+            margin: 0 auto; /* Center the element horizontally */
+            width: 80%; /* Set a specific width for the container */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5 center-table"> <!-- Added center-table class -->
+        <h1 class="mb-4">Facturation</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Code Article</th>
+                    <th>Nom Produit</th>
+                    <th>Quantité</th>
+                    <th>Prix Unitaire</th>
+                    <th>Remise %</th>
+                    <th>TVA %</th>
+                    <th>Montant HTVA</th>
+                    <th>Montant TTC</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="facturation_table_body">
+                {% for facturation in facturations %}
+                <tr>
+                    <td>{{ facturation.produit.code_article }}</td>
+                    <td>{{ facturation.produit.nom_produit }}</td>
+                    <td>{{ facturation.quantite }}</td>
+                    <td>{{ facturation.prix_unitaire }}</td>
+                    <td>{{ facturation.remise }}%</td> <!-- Display remise with % -->
+                    <td>{{ facturation.tva }}%</td> <!-- Display tva with % -->
+                    <td>{{ facturation.montant_htva }}</td>
+                    <td>{{ facturation.montant_ttc }}</td>
+                    <td>
+                      <a href="{% url 'supprimer_facturation' facturation.id %}" class="btn btn-danger btn-sm">Supprimer</a>
+                  </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <!-- Button to add new facture row -->
+        <button type="button" class="btn btn-success" id="add_facture_row">Ajouter Facture</button>
+    </div>
+
+    <!-- Include jQuery and custom JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#add_facture_row').click(function() {
+                var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+                var newRow = '<tr>' +
+                    '<td><input type="text" name="code_article" class="code_article_input"></td>' +
+                    '<td><input type="text" name="designation" class="designation_input"></td>' +
+                    '<td><input type="number" name="quantite" class="quantite_input"></td>' +
+                    '<td><input type="number" name="prix_unitaire" class="prix_unitaire_input"></td>' +
+                    '<td><input type="number" name="remise" class="remise_input"></td>' +
+                    '<td><input type="number" name="tva" class="tva_input"></td>' +
+                    '<td><input type="number" name="montant_htva" class="montant_htva_input"></td>' +
+                    '<td><input type="number" name="montant_ttc" class="montant_ttc_input"></td>' +
+                    '<td>' +
+                    '<a href="#" class="btn btn-danger btn-sm">Supprimer</a>' +
+                    '</td>' +
+                    '</tr>';
+                $('#facturation_table_body').append(newRow);
+            });
+
+            // AJAX request to fetch data based on code article
+            $('#facturation_table_body').on('change', '.code_article_input', function() {
+                var codeArticle = $(this).val();
+                var row = $(this).closest('tr');
+                $.ajax({
+                    url: '{% url "get_produit_data" %}',
+                    type: 'GET',
+                    data: {
+                        'code_article': codeArticle
+                    },
+                    success: function(data) {
+                        row.find('.designation_input').val(data.nom_produit);
+                        row.find('.prix_unitaire_input').val(data.prix_unitaire);
+                        row.find('.tva_input').val(data.tva);
+                        // Populate other fields as needed
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ": " + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

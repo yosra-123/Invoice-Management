@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer Facture</title>
+</head>
+<body>
+    <h1>Créer Facture</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ facture_form.as_p }}
+        {{ article_formset.management_form }}
+        {% for form in article_formset %}
+            {{ form.as_p }}
+        {% endfor %}
+        <button type="submit">Créer</button>
+    </form>
+</body>
+</html>

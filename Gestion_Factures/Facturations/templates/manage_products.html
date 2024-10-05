@@ -1,0 +1,170 @@
+<!-- manage_products.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List des produits</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input[type="text"], input[type="decimal"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .buttonr {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #dc3545; /* Red color */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none; /* Remove default link underline */
+        }
+
+        .button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        table th {
+            background-color: #f8f9fa;
+        }
+
+        table td {
+            background-color: #fff;
+        }
+
+        .edit-button, .delete-button {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        .edit-button:hover, .delete-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>List des produits</h1>
+
+        <!-- Form for adding/editing products -->
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="code_article">Code Article:</label>
+                <input type="text" id="code_article" name="code_article">
+            </div>
+            <div class="form-group">
+                <label for="nom_produit">Nom Produit:</label>
+                <input type="text" id="nom_produit" name="nom_produit">
+            </div>
+            <div class="form-group">
+                <label for="prix_unitaire">Prix Unitaire:</label>
+                <input type="decimal" id="prix_unitaire" name="prix_unitaire">
+            </div>
+            <div class="form-group">
+                <label for="tva">TVA:</label>
+                <input type="decimal" id="tva" name="tva">
+            </div>
+            <button type="submit" class="button">Ajouter un produit</button>
+                <!-- Add the "Retour" button that redirects to the home page -->
+           <a href="{% url 'home' %}" class="buttonr">Retour</a>
+        </form>
+
+        <!-- Table to display products -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Code Article</th>
+                    <th>Nom Produit</th>
+                    <th>Prix Unitaire</th>
+                    <th>TVA</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produit in produits %}
+                <tr>
+                    <td>{{ produit.code_article }}</td>
+                    <td>{{ produit.nom_produit }}</td>
+                    <td>{{ produit.prix_unitaire }}</td>
+                    <td>{{ produit.tva }}%</td>
+                    <td>
+                        <a href="{% url 'edit_produit' produit.pk %}" class="edit-button">Modifier</a>
+                        <a href="{% url 'delete_produit' produit.pk %}" class="delete-button" onclick="return confirm('Etes-vous sûr que vous voulez supprimer ?')">Supprimer</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

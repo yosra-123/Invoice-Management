@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+  <style>
+    body {
+      background-color: #f0f0f0; 
+      color: #000; 
+    }
+  </style>
+</head>
+
+<div class="container">
+    <h1 class="text-capitalize text-center mx-10 bg-dark text-white mt-5">Enregistrez un nouveau client</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Nom</label>
+            <input name="name" required type="text" class="form-control" id="name" placeholder="Nom et prénom du client">
+        </div>
+
+
+
+        <div class="form-group">
+            <label for="phone">Contact</label>
+            <input name="phone" required type="number" class="form-control" id="phone" placeholder="Numéro de téléphone du client">
+        </div>
+
+        <div class="form-group">
+            <label for="address">Adresse</label>
+            <input name="address" required type="text" class="form-control" id="address" placeholder="Adresse du client">
+        </div>
+
+        <div class="form-group">
+            <label for="city">Matricule Fiscale</label>
+            <input name="city" type="text" class="form-control" id="city" placeholder="Matricule fiscale du client">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+    </form>
+
+    <br><br><br>
+
+    <h2 class="text-center">Liste des clients</h2>
+
+    <!-- Search bar for customers -->
+    <div class="input-group mb-3">
+        <input type="text" id="searchInputCustomer" class="form-control" placeholder="Rechercher un client">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" id="searchButtonCustomer">Rechercher</button>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                
+                <th>Contact</th>
+                <th>Adresse</th>
+                <th>Matricule Fiscale</th>     
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="customer-list">
+            {% for customer in customers %}
+            <tr>
+                <td>{{ customer.name }}</td>
+               
+                <td>{{ customer.phone }}</td>
+                <td>{{ customer.address }}</td>
+                <td>{{ customer.city }}</td>
+                
+                <td>
+                    <a href="{% url 'edit_customer' customer.pk %}" class="btn btn-warning">Edit</a>
+                    <a href="{% url 'delete_customer' customer.pk %}" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    // JavaScript logic for customer search functionality
+    $(document).ready(function() {
+        $('#searchButtonCustomer').click(function() {
+            var searchTextCustomer = $('#searchInputCustomer').val().toLowerCase();
+            $('#customer-list tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(searchTextCustomer) > -1);
+            });
+        });
+    });
+</script>
+
+{% endblock content %}

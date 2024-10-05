@@ -1,0 +1,18 @@
+<!-- facturation_table.html -->
+
+{% for facture in factures %}
+<tr>
+    <td>{{ facture.produit.code_article }}</td>
+    <td>{{ facture.produit.nom_produit }}</td>
+    <td>{{ facture.quantite }}</td>
+    <td>{{ facture.prix_unitaire }}</td>
+    <td>{{ facture.remise }}%</td>
+    <td>{{ facture.tva }}%</td>
+    <td>{{ facture.montant_htva }}</td>
+    <td>{{ facture.montant_ttc }}</td>
+    <td>
+        <a href="{% url 'supprimer_facturation' facture.id %}" class="btn btn-danger btn-sm">Supprimer</a>
+        <button type="button" class="btn btn-primary btn-sm generate_facture">Calculer</button>
+    </td>
+</tr>
+{% endfor %}

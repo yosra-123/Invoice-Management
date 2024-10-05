@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+        .invoice-box table {
+            width: 100%;
+            line-height: inherit;
+            text-align: left;
+        }
+        .invoice-box table td {
+            padding: 5px;
+            vertical-align: top;
+        }
+        .invoice-box table tr td:nth-child(2) {
+            text-align: right;
+        }
+        .invoice-box table tr.top table td {
+            padding-bottom: 20px;
+        }
+        .invoice-box table tr.top table td.title {
+            font-size: 45px;
+            line-height: 45px;
+            color: #333;
+        }
+        .invoice-box table tr.information table td {
+            padding-bottom: 40px;
+        }
+        .invoice-box table tr.heading td {
+            background: #eee;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+        }
+        .invoice-box table tr.details td {
+            padding-bottom: 20px;
+        }
+        .invoice-box table tr.item td {
+            border-bottom: 1px solid #eee;
+        }
+        .invoice-box table tr.item.last td {
+            border-bottom: none;
+        }
+        .invoice-box table tr.total td:nth-child(2) {
+            border-top: 2px solid #eee;
+            font-weight: bold;
+        }
+        .right-align {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <table cellpadding="0" cellspacing="0">
+            <tr class="top">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td class="title">
+                                Nom de société
+                            </td>
+                            <td>
+                                Facture #: <br>
+                                Date: <br>
+                                Matricule fiscal client: <span id="client-matricule"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="information">
+                <td colspan="2">
+                    <table>
+                        <tr>
+                            <td>
+                                Nom client: <span id="client-name"></span><br>
+                                Matricule fiscal client: <span id="client-matricule-info"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="heading">
+                <td>Désignation</td>
+                <td class="right-align">Qnt</td>
+                <td class="right-align">Prix unit</td>
+                <td class="right-align">TVA</td>
+                <td class="right-align">Prix total</td>
+                <td class="right-align">Prix vente</td>
+            </tr>
+            <!-- Add more item rows dynamically -->
+            <tr class="item">
+                <td>Produit 1</td>
+                <td class="right-align">1</td>
+                <td class="right-align">100.00</td>
+                <td class="right-align">20%</td>
+                <td class="right-align">120.00</td>
+                <td class="right-align">120.00</td>
+            </tr>
+            <tr class="item last">
+                <td>Produit 2</td>
+                <td class="right-align">2</td>
+                <td class="right-align">50.00</td>
+                <td class="right-align">10%</td>
+                <td class="right-align">110.00</td>
+                <td class="right-align">110.00</td>
+            </tr>
+            <tr class="total">
+                <td colspan="5"></td>
+                <td class="right-align">
+                   Total HT: 200.00<br>
+                   Total TVA: 30.00<br>
+                   Total TTC: 230.00
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        // Get query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientName = urlParams.get('client');
+        const clientMatricule = urlParams.get('matricule');
+
+        // Set client details in the invoice
+        document.getElementById('client-name').textContent = clientName;
+        document.getElementById('client-matricule').textContent = clientMatricule;
+        document.getElementById('client-matricule-info').textContent = clientMatricule;
+    </script>
+</body>
+</html>

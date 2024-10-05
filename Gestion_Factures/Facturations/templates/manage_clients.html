@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Clients</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .buttonr {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #dc3545; /* Red color */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none; /* Remove default link underline */
+        }
+        .button:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        table th {
+            background-color: #f8f9fa;
+        }
+
+        table td {
+            background-color: #fff;
+        }
+
+        .edit-button, .delete-button {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        .edit-button:hover, .delete-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Liste des Clients</h1>
+
+        <!-- Form for adding/editing clients -->
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="nom_client">Nom Client:</label>
+                <input type="text" id="nom_client" name="nom_client">
+            </div>
+            <div class="form-group">
+                <label for="matricule_fiscale">Matricule Fiscale:</label>
+                <input type="text" id="matricule_fiscale" name="matricule_fiscale">
+            </div>
+            <div class="form-group">
+                <label for="contact">Contact:</label>
+                <input type="text" id="contact" name="contact">
+            </div>
+            <button type="submit" class="button">Ajouter Client</button>
+                <!-- Add the "Retour" button that redirects to the home page -->
+                <a href="{% url 'home' %}" class="buttonr">Retour</a>
+        </form>
+
+        <!-- Table to display clients -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom Client</th>
+                    <th>Matricule Fiscale</th>
+                    <th>Contact</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td>{{ client.nom_client }}</td>
+                    <td>{{ client.matricule_fiscale }}</td>
+                    <td>{{ client.contact }}</td>
+                    <td>
+                        <a href="{% url 'edit_client' client.pk %}" class="edit-button">Modifier</a>
+                        <a href="{% url 'delete_client' client.pk %}" class="delete-button" onclick="return confirm('Etes-vous sûr que vous voulez supprimer ?')">Supprimer</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

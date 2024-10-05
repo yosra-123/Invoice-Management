@@ -1,0 +1,100 @@
+<!-- myapp/templates/home.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            color: #000;
+        }
+        
+        .logout-button {
+            background-color: #d32f2f;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .logout-button:hover {
+            background-color: #b71c1c;
+        }
+        /* Your existing styles */
+        .button-container {
+            float: left;
+            width: 300px;
+            padding-right: 30px;
+        }
+
+        .additional-buttons {
+            float: right; /* Float the additional buttons container to the right */
+            width: 200px;
+            padding-left: 20px;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+        .title {
+            text-align: right;
+            float: right;
+            font-size: 20px; /* Adjust the font size as needed */
+            margin-bottom: 50px; /* Add some bottom margin for spacing */
+        }
+
+        /* Styles for the image container */
+        .image-container {
+            text-align: center;
+            margin-bottom: 50px; /* Add margin bottom for spacing */
+        }
+
+        .centered-image {
+            max-width: 100%; /* Ensure the image doesn't exceed its container */
+            height: auto;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="header">
+        <h2>Bienvenue, </h2>
+        <h1 class="title">Société Saadaoui Alimentaires</h1>
+        <a href="{% url 'logout' %}" class="logout-button">Logout</a>
+    </div>
+        <div class="button-container">
+            <a href="{% url 'facturation_page' %}" class="button">Nouvelle Facture</a>
+            <a href="{% url 'page_bon_livraison' %}" class="button">Nouvelle Bon de Livraison</a>
+        </div>
+        <div class="additional-buttons">
+            <a href="{% url 'manage_products' %}" class="button">Produits</a>
+            <a href="{% url 'manage_clients' %}" class="button">Clients</a>
+            <a href="{% url 'historique_factures' %}" class="button">Historique des factures</a>
+            <a href="{% url 'bl_history' %}" class="button">Historique des BL</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!-- delete_produit.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supprimer Produit</title>
+    <style>
+        /* Include the same styles as add_produit.html */
+        /* You can add specific styles for the delete page here */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Supprimer Produitt</h1>
+        <p>Etes-vous sûr que vous voulez supprimer "{{ produit.nom_produit }}"?</p>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="button">Confirmation de la suppression</button>
+        </form>
+    </div>
+</body>
+</html>

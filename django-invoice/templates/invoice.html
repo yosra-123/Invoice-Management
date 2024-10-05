@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+<head>
+    <style>
+
+
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: Arial, sans-serif;
+        }
+
+        .container, .card, .invoice-container, .card-body, .invoice-details, .invoice-body {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        h1, h5 {
+            background-color: #ffffff;
+            color: #4f4f4f;
+            font-size: 1.8rem; /* Increased font size */
+        }
+
+        address {
+            background-color: #ffffff;
+            color: #4f4f4f;
+            font-size: 1.2rem; /* Larger address text */
+        }
+
+        .table, .custom-table {
+            background-color: #ffffff;
+            width: 100%;
+            color: #4f4f4f;
+            border-collapse: collapse;
+            table-layout: fixed; /* Ensures columns keep a consistent width */
+            font-size: 1.1rem; /* Increased table text size */
+        }
+
+        .table th, .table td, .custom-table th, .custom-table td {
+            padding: 1rem; /* More padding for clarity */
+            vertical-align: top;
+            border: 1px solid #dee2e6;
+            word-wrap: break-word; /* Ensures long text doesn't overflow */
+        }
+
+        .table th, .custom-table th {
+            text-align: left;
+            background-color: #f8f9fa;
+        }
+
+        .table-bordered, .table-bordered th, .table-bordered td {
+            border: 1px solid #dee2e6;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .btn-primary, .btn-secondary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px; /* Increased padding for buttons */
+            text-decoration: none;
+            display: inline-block;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .invoice-container .invoice-details {
+            margin: 1rem 0 0 0;
+            padding: 1.5rem; /* Larger padding for clearer layout */
+            line-height: 200%; /* Increased line height */
+            background: #ffffff;
+        }
+
+        .hidden-input {
+            border: none;
+            background: none;
+            color: #4f4f4f;
+            font-size: 1.1rem; /* Larger input text */
+        }
+
+        .medium-bold {
+            font-weight: bold;
+            font-size: 1.4rem; /* Adjusted size for bold text */
+        }
+
+        .image-container {
+            text-align: left;
+        }
+
+        .image-container img {
+            width: 300px; /* Increased image size */
+            height: auto;
+        }
+
+        .right-align {
+            text-align: right;
+        }
+
+        .right-align h5 {
+            display: inline-block;
+            text-align: right;
+            margin: 0;
+            font-size: 1.5rem; /* Larger h5 text */
+        }
+        
+        /* Additional styles for the payment details and cachet */
+        .payment-details {
+            margin-top: 50px;
+        }
+
+        .cachet {
+            float: right; /* Align cachet to the right */
+            margin-top: 20px;
+        }
+
+        .cachet div {
+            border: 1px solid #000;
+            width: 250px; /* Increased width */
+            height: 150px; /* Increased height */
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<div class="container">
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="invoice-container">
+                        <div class="invoice-header">
+                            <div class="row gutters">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                                    <div class="custom-actions-btns mb-5">
+                                        <div class="row gutters">
+                                            <div class="col-lg-6 col-md-6 col-sm-12 col-12">
+                                                <button class="btn btn-primary" id="printBtn">Imprimer</button>
+                                            </div>
+                                        </div>
+                                        <script>
+                                            function printPage() {
+                                                window.print();
+                                            }
+
+                                            document.getElementById('printBtn').addEventListener('click', function() {
+                                                printPage();
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row gutters">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="image-container">
+                                        <img src="{% static 'images/download.jpg' %}" alt="Image 1">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 right-align">
+                                    <address>
+                                        <h5>
+                                            <p><strong>Nom client:</strong> {{ obj.customer.name }}</p>
+                                            <p><strong>Matricule client: </strong>{{ obj.customer.city }}</p>
+                                            <p><strong>Contact: </strong>{{ obj.customer.phone }}</p>
+                                        </h5>
+                                    </address>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12">
+                                <div class="invoice-details medium-bold">
+                                    <div>Facture / <br> الفاتورة</div>    
+                                    <div>Num: {{ obj.id|add:2000 }}</div>
+                                </div>                                                  
+                            </div>
+                            <div class="row gutters">
+                                <div class="col-xl-9 col-lg-9 col-md-12 col-sm-12">
+                                    <div class="invoice-details">
+                                        <address>
+                                            <div>{{obj.invoice_date_time|date:"d-m-Y"}}</div>
+                                        </address>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="invoice-body">
+                            <div class="row gutters">
+                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                    <!-- Removed table-responsive to avoid scrolling -->
+                                    <table class="table table-bordered m-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Num</th>
+                                                <th>Nom produit /<br> اسم المنتج </th>
+                                                <th>Quantité / <br> كمية</th>
+                                                <th>Prix unitaire / <br>  سعر الوحدة </th>
+                                                <th>TVA (%)</th>
+                                                <th>Montant HT</th>
+                                                <th>Montant TTC</th>
+                                                <th>Prix total / <br> الثمن الجملي</th>
+                                                <th>Prix de vente / <br> ثمن البيع</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for article in obj.article_set.all %}  
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ article.name }}</td>
+                                                <td>{{ article.quantity }}</td>
+                                                <td>{{ article.unit_price }}</td>
+                                                <td>{{ article.tva }}</td>
+                                                <td><input type="text" name="montant_ht" value="{{ article.montant_ht }}" class="hidden-input"></td>
+                                                <td><input type="text" name="montant_ttc" value="{{ article.montant_ttc }}" class="hidden-input"></td>
+                                                <td><input type="text" name="total-a" value="{{ article.total }}" class="hidden-input"></td>
+                                                <td>
+                                                    {% if article.prix == 0 %}
+                                                        -
+                                                    {% else %}
+                                                        {{ article.prix }}
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %} 
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="row gutters">
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-12">
+                                <table class="table table-bordered2 table-left">
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Total HT:</strong></td>
+                                            <td><span id="total_ht">{{ obj.montant_ht }}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Total TVA:</strong></td>
+                                            <td><span id="total_tva">{{ obj.total_tva }}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Total TTC:</strong></td>
+                                            <td><span id="total_ttc">{{ obj.montant_ttc }}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- New section resembling the uploaded picture -->
+                        <div class="payment-details">
+                            <div class="cachet" style="margin-top: 20px;">
+                                <p><strong>Cachet:</strong></p>
+                                <div></div> <!-- Placeholder for stamp -->
+                            </div>
+                        </div>
+                        <!-- End of new section -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmer Suppression</title>
+</head>
+<body>
+    <h1>Confirmer Suppression</h1>
+    <p>Êtes-vous sûr de vouloir supprimer la facture "{{ object.numero_facture }}" ?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Confirmer</button>
+    </form>
+</body>
+</html>

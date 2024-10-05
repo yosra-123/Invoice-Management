@@ -1,0 +1,141 @@
+<!-- add_facture.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Facture</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Ajouter Facture</h1>
+    <form id="addFactureForm">
+        {% csrf_token %}
+        <label for="code_article">Code Article:</label>
+        <select id="code_article" name="code_article">
+            {% for produit in produits %}
+                <option value="{{ produit.code_article }}" data-prix="{{ produit.prix_unitaire }}" data-tva="{{ produit.tva }}">{{ produit.nom_produit }}</option>
+            {% endfor %}<!-- add_facture.html -->
+
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>Ajouter Facture</title>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+                <style>
+                    /* Your CSS styles here */
+                </style>
+            </head>
+            <body>
+                <!-- Your HTML content here -->
+            
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script>
+                    $(document).ready(function () {
+                        $('#addFactureBtn').on('click', function () {
+                            var codeArticle = $('#code_article').val();
+                            var nomProduit = $('#code_article option:selected').text();
+                            var quantite = $('#quantite').val();
+                            var prixUnitaire = $('#code_article option:selected').data('prix');
+                            var tva = $('#code_article option:selected').data('tva');
+                            var remise = $('#remise').val();
+                            var prixVente = $('#prix_vente').val();
+            
+                            // Calculate prixTotal using prixUnitaire, quantite, tva, remise
+                            var prixTotal = (prixUnitaire * quantite * (1 + tva / 100) * (1 - remise / 100)).toFixed(2);
+            
+                            // Append a new row to the table
+                            var newRow = '<tr>' +
+                                '<td>' + codeArticle + '</td>' +
+                                '<td>' + nomProduit + '</td>' +
+                                '<td>' + quantite + '</td>' +
+                                '<td>' + prixUnitaire + '</td>' +
+                                '<td>' + tva + '</td>' +
+                                '<td>' + remise + '</td>' +
+                                '<td>' + prixTotal + '</td>' +
+                                '<td>' + prixVente + '</td>' +
+                                '</tr>';
+                            $('#ligneFactureBody').append(newRow);
+            
+                            // Show the table if it's hidden
+                            $('#ligneFactureTable').show();
+                        });
+                    });
+                </script>
+            </body>
+            </html>
+            
+        </select>
+        <input type="number" id="quantite" name="quantite" placeholder="Quantité">
+        <input type="number" id="remise" name="remise" placeholder="Remise">
+        <input type="number" id="prix_vente" name="prix_vente" placeholder="Prix Vente">
+        <input type="text" id="num_facture" name="num_facture" placeholder="Numéro Facture">
+        <select id="nom_client" name="nom_client">
+            {% for client in clients %}
+                <option value="{{ client.id }}">{{ client.nom_client }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" id="addFactureBtn">Add</button>
+    </form>
+
+    <table id="ligneFactureTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>Code Article</th>
+                <th>Nom Produit</th>
+                <th>Quantité</th>
+                <th>Prix Unit</th>
+                <th>TVA (%)</th>
+                <th>Remise (%)</th>
+                <th>Prix Total</th>
+                <th>Prix Vente</th>
+            </tr>
+        </thead>
+        <tbody id="ligneFactureBody"></tbody>
+    </table>
+
+    <script>
+        $(document).ready(function () {
+            $('#addFactureBtn').on('click', function () {
+                var codeArticle = $('#code_article').val();
+                var nomProduit = $('#code_article option:selected').text();
+                var prixUnitaire = parseFloat($('#code_article option:selected').data('prix'));
+                var tva = parseFloat($('#code_article option:selected').data('tva'));
+                var quantite = parseInt($('#quantite').val());
+                var remise = parseFloat($('#remise').val());
+                var prixVente = parseFloat($('#prix_vente').val());
+                var numFacture = $('#num_facture').val();
+                var nomClient = $('#nom_client').val();
+
+                var prixTotal = prixUnitaire * quantite * (1 - remise / 100);
+                var prixTotalTVA = prixTotal * (1 + tva / 100);
+
+                $('#ligneFactureBody').append(
+                    '<tr>' +
+                    '<td>' + codeArticle + '</td>' +
+                    '<td>' + nomProduit + '</td>' +
+                    '<td>' + quantite + '</td>' +
+                    '<td>' + prixUnitaire + '</td>' +
+                    '<td>' + tva + '</td>' +
+                    '<td>' + remise + '</td>' +
+                    '<td>' + prixTotal + '</td>' +
+                    '<td>' + prixVente + '</td>' +
+                    '</tr>'
+                );
+
+                $('#addFactureForm').append(
+                    '<input type="hidden" name="code_article" value="' + codeArticle + '">' +
+                    '<input type="hidden" name="quantite" value="' + quantite + '">' +
+                    '<input type="hidden" name="remise" value="' + remise + '">' +
+                    '<input type="hidden" name="prix_vente" value="' + prixVente + '">' +
+                    '<input type="hidden" name="num_facture" value="' + numFacture + '">' +
+                    '<input type="hidden" name="nom_client" value="' + nomClient + '">'
+                );
+
+                $('#ligneFactureTable').show();
+            });
+        });
+    </script>
+</body>
+</html>
